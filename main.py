@@ -1,31 +1,27 @@
+from flask import Flask
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-import time
+from webdriver_manager.chrome import ChromeDriverManager
 
-# Cấu hình headless Chrome
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
+app = Flask(__name__)
 
-# Khởi tạo trình duyệt
-driver = webdriver.Chrome(options=chrome_options)
+@app.route('/')
+def get_stock_price():
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
 
-# Mở trang
-url = "https://cafef.vn/du-lieu/hose/fpt-cong-ty-co-phan-fpt.chn"
-driver.get(url)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    driver.get("https://cafef.vn/du-lieu/hose/fpt-cong-ty-co-phan-fpt.chn")
 
-# Chờ trang tải
-time.sleep(5)
+    html = driver.page_source
+    driver.quit()
 
-# Lấy giá cổ phiếu FPT
-try:
-    price_element = driver.find_element(By.CSS_SELECTOR, ".price")
-    price = price_element.text
-    print(f"Giá cổ phiếu FPT: {price}")
-except:
-    print("Không tìm thấy giá trong HTML.")
+    if "Công ty Cổ phần FPT" in html:
+        return "✅ Đã load trang thành công!"
+    else:
+        return "❌ Không lấy được dữ liệu!"
 
-# Đóng trình duyệt
-driver.quit()
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=10000)
