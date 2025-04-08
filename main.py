@@ -1,30 +1,31 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+import time
 
-def get_stock_price(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36'
-    }
+# Cấu hình headless Chrome
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
-    try:
-        response = requests.get(url, headers=headers)
-        response.encoding = 'utf-8'  # fix tiếng Việt
-        soup = BeautifulSoup(response.text, 'html.parser')
+# Khởi tạo trình duyệt
+driver = webdriver.Chrome(options=chrome_options)
 
-        # In HTML ra Render console để test nếu cần
-        # print(soup.prettify())
+# Mở trang
+url = "https://cafef.vn/du-lieu/hose/fpt-cong-ty-co-phan-fpt.chn"
+driver.get(url)
 
-        # Tìm đến block chứa giá hiện tại (dựa trên class nhìn thấy trên web)
-        price_block = soup.select_one('.current-price') or soup.select_one('.price')  # fallback
+# Chờ trang tải
+time.sleep(5)
 
-        if price_block:
-            price = price_block.text.strip()
-            print(f'✅ Giá hiện tại là: {price}')
-        else:
-            print("❌ Không tìm thấy giá trong HTML.")
+# Lấy giá cổ phiếu FPT
+try:
+    price_element = driver.find_element(By.CSS_SELECTOR, ".price")
+    price = price_element.text
+    print(f"Giá cổ phiếu FPT: {price}")
+except:
+    print("Không tìm thấy giá trong HTML.")
 
-    except Exception as e:
-        print(f"Lỗi: {str(e)}")
-
-if __name__ == "__main__":
-    get_stock_price("https://cafef.vn/du-lieu/hose/fpt-cong-ty-co-phan-fpt.chn")
+# Đóng trình duyệt
+driver.quit()
