@@ -1,6 +1,7 @@
 from flask import Flask
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 app = Flask(__name__)
@@ -12,9 +13,10 @@ def get_stock_price():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    driver.get("https://cafef.vn/du-lieu/hose/fpt-cong-ty-co-phan-fpt.chn")
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
 
+    driver.get("https://cafef.vn/du-lieu/hose/fpt-cong-ty-co-phan-fpt.chn")
     html = driver.page_source
     driver.quit()
 
