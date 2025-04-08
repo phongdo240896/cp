@@ -1,8 +1,10 @@
 services:
   - type: web
     name: cp
-    runtime: python
+    env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
-    plan: free
-    region: oregon
+    envVars:
+      - key: PORT
+        value: 10000
